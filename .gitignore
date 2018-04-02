@@ -3,6 +3,7 @@
 *.iml
 *.iws
 bin/
+out/
 
 # Maven
 log/
