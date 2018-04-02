@@ -41,14 +41,14 @@ public class Main {
 
     void generateRandomTransactions(int period) throws Exception {
       Random random = new Random();
-
+      long i = 0;
       while (1 != 0) {
         User randomSender = this.users.get(random.nextInt(this.users.size()));
         Transaction transaction = randomSender.createTransaction("Hello World");
 
         randomSender.notifyPeers(transaction);
 
-        System.out.println("asdfsdhfhhh");
+        System.out.println(i++);
       }
     }
   }
@@ -73,8 +73,9 @@ public class Main {
     }
 
     void addPeer(User peer) {
-      // TODO: Safeguard against duplicates & yourself
-      this.peers.add(peer);
+
+      if(!this.equals(peer) && !this.peers.contains(peer))
+        this.peers.add(peer);
     }
 
     Transaction createTransaction(String message) throws Exception {
@@ -85,7 +86,7 @@ public class Main {
 
       if (this.uncommittedBlock.isFull()) {
         // TODO: Broadcast block
-        this.uncommittedBlock.clear();
+//        this.uncommittedBlock.clear();
       }
 
       return newTransaction;
@@ -99,6 +100,7 @@ public class Main {
 
     void handleTransaction(Transaction transaction) throws BlockOverflowException {
       // @TODO [QUESTION]: Verify/confirm transaction
+      // [Answer]: No!
 
       if (this.uncommittedBlock.contains(transaction)) {
         return;
@@ -108,10 +110,21 @@ public class Main {
 
       if (this.uncommittedBlock.isFull()) {
         // TODO [QUESTION]: Crossover between broadcasting transactions & blocks
-        this.uncommittedBlock.clear();
+        // [Answer]: Keep all in block and broadcast a subset and remove them from the Arraylist
+
+        // TODO: Broadcast block
+//        this.uncommittedBlock.clear();
       }
 
       this.notifyPeers(transaction);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      User that = (User) o;
+      return this.getPublicKey().equals(that.getPublicKey());
     }
 
     public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
@@ -144,6 +157,7 @@ public class Main {
     // TODO: Timestamp
     // TODO: Recipient, sender & amount
     // TODO [QUESTION]: TTL
+    // [Answer]: No need. Randomize selected peers
     private String id;
     private PublicKey publicKey;
     private byte[] encryptedMessage;
@@ -184,11 +198,7 @@ public class Main {
       this.transactions = new ArrayList<>();
     }
 
-    void append(Transaction transaction) throws BlockOverflowException {
-      if (this.isFull()) {
-        throw new BlockOverflowException();
-      }
-
+    void append(Transaction transaction){
       this.transactions.add(transaction);
     }
 
@@ -197,11 +207,13 @@ public class Main {
     }
 
     boolean isFull() {
-      return this.transactions.size() == capacity;
+      return this.transactions.size() >= capacity;
     }
 
     void clear() {
-      this.transactions.clear();
+      for (int i = 0; i < capacity; i++) {
+        this.transactions.remove(i);
+      }
     }
   }
 
