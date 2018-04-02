@@ -92,13 +92,17 @@ public class Main {
       return newTransaction;
     }
 
-    void notifyPeers(Transaction transaction) throws BlockOverflowException {
-      for (User peer : this.peers) {
-        peer.handleTransaction(transaction);
+    void notifyPeers(Transaction transaction) {
+      Random random = new Random();
+      int numberOfPeers = random.nextInt(this.peers.size())+1;
+
+      for (int i = 0; i < numberOfPeers ; i++) {
+        User randomPeer = this.peers.get(random.nextInt(this.peers.size()));
+        randomPeer.handleTransaction(transaction);
       }
     }
 
-    void handleTransaction(Transaction transaction) throws BlockOverflowException {
+    void handleTransaction(Transaction transaction) {
       // @TODO [QUESTION]: Verify/confirm transaction
       // [Answer]: No!
 
