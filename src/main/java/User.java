@@ -23,8 +23,9 @@ public class User {
   }
 
   void addPeer(User peer) {
-
-    if (!this.equals(peer) && !this.peers.contains(peer)) this.peers.add(peer);
+    if (!this.equals(peer) && !this.peers.contains(peer)) {
+      this.peers.add(peer);
+    }
   }
 
   Transaction createTransaction(String message) throws Exception {
@@ -35,7 +36,7 @@ public class User {
 
     if (this.uncommittedBlock.isFull()) {
       // TODO: Broadcast block
-      //        this.uncommittedBlock.clear();
+      // this.uncommittedBlock.clear();
     }
 
     return newTransaction;
@@ -66,7 +67,7 @@ public class User {
       // [Answer]: Keep all in block and broadcast a subset and remove them from the Arraylist
 
       // TODO: Broadcast block
-      //        this.uncommittedBlock.clear();
+      // this.uncommittedBlock.clear();
     }
 
     this.notifyPeers(transaction);
@@ -74,8 +75,14 @@ public class User {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
     User that = (User) o;
     return this.getPublicKey().equals(that.getPublicKey());
   }
@@ -90,14 +97,12 @@ public class User {
   public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
     Cipher cipher = Cipher.getInstance("RSA");
     cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-
     return cipher.doFinal(message.getBytes());
   }
 
   public static byte[] decrypt(PublicKey publicKey, byte[] encrypted) throws Exception {
     Cipher cipher = Cipher.getInstance("RSA");
     cipher.init(Cipher.DECRYPT_MODE, publicKey);
-
     return cipher.doFinal(encrypted);
   }
 
