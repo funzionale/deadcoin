@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Network {
-  Blockchain ledger;
-  ArrayList<User> users;
+  private Blockchain ledger;
+  private ArrayList<User> users;
 
   Network() {
     this.ledger = new Blockchain();

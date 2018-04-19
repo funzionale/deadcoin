@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 public class Block {
-  String previousBlockHash;
+  private String previousBlockHash;
   private ArrayList<Transaction> transactions;
-  static final int capacity = 10;
+  private static final int capacity = 10;
 
   Block() {
     this.transactions = new ArrayList<>();

@@ -4,9 +4,9 @@ import java.util.Random;
 
 public class User {
   // @TODO: User honesty
-  ArrayList<User> peers;
-  Blockchain blockchain;
-  Block uncommittedBlock;
+  private ArrayList<User> peers;
+  private Blockchain blockchain;
+  private Block uncommittedBlock;
   private KeyPair keyPair;
 
   User(Blockchain ledger) {
