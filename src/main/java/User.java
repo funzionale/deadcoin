@@ -1,4 +1,3 @@
-import javax.crypto.Cipher;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,7 +11,7 @@ public class User {
 
   User(Blockchain ledger) {
     try {
-      this.keyPair = buildKeyPair();
+      this.keyPair = RSA.buildKeyPair();
       this.peers = new ArrayList<>();
       // @TODO: Clone the ledger
       this.blockchain = ledger;
@@ -29,7 +28,7 @@ public class User {
   }
 
   Transaction createTransaction(String message) throws Exception {
-    byte[] encrypted = encrypt(this.keyPair.getPrivate(), message);
+    byte[] encrypted = RSA.encrypt(this.keyPair.getPrivate(), message);
     Transaction newTransaction = new Transaction(this.keyPair.getPublic(), encrypted);
 
     this.uncommittedBlock.append(newTransaction);
@@ -85,25 +84,6 @@ public class User {
 
     User that = (User) o;
     return this.getPublicKey().equals(that.getPublicKey());
-  }
-
-  public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
-    final int keySize = 512;
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    keyPairGenerator.initialize(keySize);
-    return keyPairGenerator.genKeyPair();
-  }
-
-  public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
-    Cipher cipher = Cipher.getInstance("RSA");
-    cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-    return cipher.doFinal(message.getBytes());
-  }
-
-  public static byte[] decrypt(PublicKey publicKey, byte[] encrypted) throws Exception {
-    Cipher cipher = Cipher.getInstance("RSA");
-    cipher.init(Cipher.DECRYPT_MODE, publicKey);
-    return cipher.doFinal(encrypted);
   }
 
   public PublicKey getPublicKey() {
