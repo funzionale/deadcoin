@@ -1,7 +1,10 @@
 import java.util.ArrayList;
 
 public class Block {
+  private String hash;
   private String previousBlockHash;
+  private int nonce;
+  private long minedAt;
   private ArrayList<Transaction> transactions;
   private static final int capacity = 10;
 
