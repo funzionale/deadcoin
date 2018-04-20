@@ -1,24 +1,27 @@
-import java.security.*;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
 public class User {
-  // @TODO: User honesty
-  private ArrayList<User> peers;
+  private PublicKey publicKey;
+  private PrivateKey privateKey;
+  ArrayList<User> peers;
+  private ArrayList<Transaction> transactionsBuffer;
   private Blockchain blockchain;
-  private Block uncommittedBlock;
-  private KeyPair keyPair;
+  // @TODO [QUESTION]: isMiner
+  // @TODO [QUESTION]: isHonest
 
-  User(Blockchain ledger) {
-    try {
-      this.keyPair = RSA.buildKeyPair();
-      this.peers = new ArrayList<>();
-      // @TODO: Clone the ledger
-      this.blockchain = ledger;
-      this.uncommittedBlock = new Block();
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    }
+  User(Blockchain ledger) throws NoSuchAlgorithmException {
+    KeyPair keyPair = RSA.buildKeyPair();
+
+    this.publicKey = keyPair.getPublic();
+    this.privateKey = keyPair.getPrivate();
+    this.peers = new ArrayList<>();
+    this.transactionsBuffer = new ArrayList<>();
+    this.blockchain = ledger; // @TODO: Clone the ledger
   }
 
   void addPeer(User peer) {
@@ -27,49 +30,73 @@ public class User {
     }
   }
 
-  Transaction createTransaction(String message) throws Exception {
-    byte[] encrypted = RSA.encrypt(this.keyPair.getPrivate(), message);
-    Transaction newTransaction = new Transaction(this.keyPair.getPublic(), encrypted);
+  void createTransaction() {
+    Transaction newTransaction = new Transaction();
 
-    this.uncommittedBlock.append(newTransaction);
+    this.broadcastTransaction(newTransaction);
+    this.transactionsBuffer.add(newTransaction);
 
-    if (this.uncommittedBlock.isFull()) {
-      // TODO: Broadcast block
-      // this.uncommittedBlock.clear();
-    }
+    if (this.isReadyToMine()) {
+      List<Transaction> groupedTransactions =
+          this.transactionsBuffer.subList(0, Block.CAPACITY);
 
-    return newTransaction;
-  }
+      // @TODO: Mine block
+      // @TODO: Broadcast block
 
-  void notifyPeers(Transaction transaction) {
-    Random random = new Random();
-    int numberOfPeers = random.nextInt(this.peers.size() + 1);
-
-    for (int i = 0; i < numberOfPeers; i++) {
-      User randomPeer = this.peers.get(random.nextInt(this.peers.size()));
-      randomPeer.handleTransaction(transaction);
+      this.transactionsBuffer.removeAll(groupedTransactions);
     }
   }
 
   void handleTransaction(Transaction transaction) {
-    // @TODO [QUESTION]: Verify/confirm transaction
+    // @TODO [QUESTION]: Verify transaction
     // [Answer]: No!
 
-    if (this.uncommittedBlock.contains(transaction)) {
+    if (this.transactionsBuffer.contains(transaction)) {
       return;
     }
 
-    this.uncommittedBlock.append(transaction);
+    this.broadcastTransaction(transaction);
+    this.transactionsBuffer.add(transaction);
 
-    if (this.uncommittedBlock.isFull()) {
-      // TODO [QUESTION]: Crossover between broadcasting transactions & blocks
-      // [Answer]: Keep all in block and broadcast a subset and remove them from the Arraylist
+    if (this.isReadyToMine()) {
+      List<Transaction> groupedTransactions =
+              this.transactionsBuffer.subList(0, Block.CAPACITY);
 
-      // TODO: Broadcast block
-      // this.uncommittedBlock.clear();
+      // @TODO: Mine block
+      // @TODO: Broadcast block
+
+      this.transactionsBuffer.removeAll(groupedTransactions);
     }
+  }
 
-    this.notifyPeers(transaction);
+  void broadcastTransaction(Transaction transaction) {
+    int randomPeersCount = Utils.random(1, this.peers.size() + 1);
+
+    while (randomPeersCount-- > 0) {
+      User randomPeer = this.getRandomPeer();
+      randomPeer.handleTransaction(transaction);
+    }
+  }
+
+  void createBlock() {
+    // @TODO
+  }
+
+  void handleBlock() {
+    // @TODO
+  }
+
+  void broadcastBlock() {
+    // @TODO
+  }
+
+  boolean isReadyToMine() {
+    return this.transactionsBuffer.size() >= Block.CAPACITY;
+  }
+
+  User getRandomPeer() {
+    int randomIndex = Utils.random(this.peers.size());
+    return this.peers.get(randomIndex);
   }
 
   @Override
@@ -83,10 +110,6 @@ public class User {
     }
 
     User that = (User) o;
-    return this.getPublicKey().equals(that.getPublicKey());
-  }
-
-  public PublicKey getPublicKey() {
-    return this.keyPair.getPublic();
+    return this.publicKey.equals(that.publicKey);
   }
 }

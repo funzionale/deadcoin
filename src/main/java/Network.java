@@ -1,44 +1,47 @@
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Network {
-  private Blockchain ledger;
-  private ArrayList<User> users;
+  Blockchain ledger;
+  ArrayList<User> users;
 
   Network() {
     this.ledger = new Blockchain();
     this.users = new ArrayList<>();
   }
 
-  void populate(int usersCount) {
-    for (int i = 0; i < usersCount; i++) {
-      this.users.add(new User(ledger));
-    }
-
-    Random random = new Random();
-
-    for (int i = 0; i < this.users.size(); i++) {
-      User user = this.users.get(i);
-
-      for (int j = i; j < random.nextInt(this.users.size() / 10) + i && j < users.size(); j++) {
-        User peer = this.users.get(j);
-
-        user.addPeer(peer);
-        peer.addPeer(user);
-      }
+  void populate(int usersCount) throws NoSuchAlgorithmException {
+    while (usersCount-- > 0) {
+      this.users.add(new User(this.ledger));
     }
   }
 
-  void generateRandomTransactions(int period) throws Exception {
-    Random random = new Random();
-    long i = 0;
-    while (i < 1000) {
-      User randomSender = this.users.get(random.nextInt(this.users.size()));
-      Transaction transaction = randomSender.createTransaction("Hello World");
+  void interweave() {
+    Utils.forEachIndexed(
+        (user, index) -> {
+          int randomPeersCount = Utils.random(1, this.users.size() / 10);
 
-      randomSender.notifyPeers(transaction);
+          while (user.peers.size() < randomPeersCount--) {
+            this.connect(user, this.getRandomUser());
+          }
+        },
+        this.users);
+  }
 
-      System.out.println(i++);
+  void generateRandomTransactions(int transactionsCount) {
+    while (transactionsCount-- > 0) {
+      User randomSender = this.getRandomUser();
+      randomSender.createTransaction();
     }
+  }
+
+  void connect(User userA, User userB) {
+    userA.addPeer(userB);
+    userB.addPeer(userA);
+  }
+
+  User getRandomUser() {
+    int randomIndex = Utils.random(this.users.size());
+    return this.users.get(randomIndex);
   }
 }
