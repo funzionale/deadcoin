@@ -1,13 +1,13 @@
-import java.security.PublicKey;
+import java.security.interfaces.DSAPublicKey;
 
 public class Transaction {
   final String id;
-  final PublicKey senderPublicKey;
-  final PublicKey receiverPublicKey;
+  final DSAPublicKey senderPublicKey;
+  final DSAPublicKey receiverPublicKey;
   final int amount;
   final long createdAt;
 
-  Transaction(PublicKey senderPublicKey, PublicKey receiverPublicKey, int amount) {
+  Transaction(DSAPublicKey senderPublicKey, DSAPublicKey receiverPublicKey, int amount) {
     this.id = Utils.uuid();
     this.senderPublicKey = senderPublicKey;
     this.receiverPublicKey = receiverPublicKey;

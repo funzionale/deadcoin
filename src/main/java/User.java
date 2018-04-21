@@ -1,24 +1,24 @@
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.interfaces.DSAPrivateKey;
+import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-  private PublicKey publicKey;
-  private PrivateKey privateKey;
-  ArrayList<User> peers;
-  private ArrayList<Transaction> transactionsBuffer;
-  private Blockchain blockchain;
+  final DSAPublicKey publicKey;
+  final DSAPrivateKey privateKey;
+  final ArrayList<User> peers;
+  final ArrayList<Transaction> transactionsBuffer;
+  final Blockchain blockchain;
   // @TODO [QUESTION]: isMiner
   // @TODO [QUESTION]: isHonest
 
   User(Blockchain ledger) throws NoSuchAlgorithmException {
-    KeyPair keyPair = RSA.buildKeyPair();
+    KeyPair keyPair = DSA.buildKeyPair();
 
-    this.publicKey = keyPair.getPublic();
-    this.privateKey = keyPair.getPrivate();
+    this.publicKey = (DSAPublicKey) keyPair.getPublic();
+    this.privateKey = (DSAPrivateKey) keyPair.getPrivate();
     this.peers = new ArrayList<>();
     this.transactionsBuffer = new ArrayList<>();
     this.blockchain = ledger; // @TODO: Clone the ledger
