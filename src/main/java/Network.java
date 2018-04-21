@@ -1,6 +1,3 @@
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.util.ArrayList;
 
 public class Network {
@@ -12,7 +9,7 @@ public class Network {
     this.users = new ArrayList<>();
   }
 
-  void populate(int usersCount) throws NoSuchAlgorithmException {
+  void populate(int usersCount) throws CryptographicException {
     while (usersCount-- > 0) {
       this.users.add(new User(this.ledger));
     }
@@ -30,8 +27,7 @@ public class Network {
         this.users);
   }
 
-  void generateRandomTransactions(int transactionsCount)
-          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  void generateRandomTransactions(int transactionsCount) throws CryptographicException {
     while (transactionsCount-- > 0) {
       User randomSender = this.getRandomUser();
       User randomReceiver = this.getRandomUser();

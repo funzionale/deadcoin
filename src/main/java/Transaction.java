@@ -1,6 +1,3 @@
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 
@@ -17,7 +14,7 @@ public class Transaction {
     DSAPublicKey senderPublicKey,
     DSAPublicKey receiverPublicKey,
     int amount
-  ) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  ) throws CryptographicException {
     this.id = Utils.uuid();
     this.senderPublicKey = senderPublicKey;
     this.receiverPublicKey = receiverPublicKey;
@@ -30,7 +27,7 @@ public class Transaction {
     DSAPrivateKey senderPrivateKey,
     DSAPublicKey receiverPublicKey,
     int amount
-  ) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  ) throws CryptographicException {
     String receiverPublicKeyStringified = receiverPublicKey.toString();
     String amountStringified = String.valueOf(amount);
 
@@ -38,7 +35,7 @@ public class Transaction {
     return DSA.sign(senderPrivateKey, data);
   }
 
-  boolean hasValidSignature() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  boolean hasValidSignature() throws CryptographicException {
     String receiverPublicKeyStringified = this.receiverPublicKey.toString();
     String amountStringified = String.valueOf(this.amount);
 

@@ -1,7 +1,4 @@
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
@@ -16,7 +13,7 @@ public class User {
   // @TODO [QUESTION]: isMiner
   // @TODO [QUESTION]: isHonest
 
-  User(Blockchain ledger) throws NoSuchAlgorithmException {
+  User(Blockchain ledger) throws CryptographicException {
     KeyPair keyPair = DSA.buildKeyPair();
 
     this.publicKey = (DSAPublicKey) keyPair.getPublic();
@@ -32,8 +29,7 @@ public class User {
     }
   }
 
-  void createTransaction(User receiver, int amount)
-          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  void createTransaction(User receiver, int amount) throws CryptographicException {
     Transaction newTransaction = new Transaction(this.privateKey, this.publicKey, receiver.publicKey, amount);
 
     this.transactionsBuffer.add(newTransaction);
@@ -49,8 +45,7 @@ public class User {
     }
   }
 
-  void handleTransaction(Transaction transaction)
-          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  void handleTransaction(Transaction transaction) throws CryptographicException {
     if (!transaction.hasValidSignature()) {
       return;
     }
@@ -72,8 +67,7 @@ public class User {
     }
   }
 
-  void broadcastTransaction(Transaction transaction)
-          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  void broadcastTransaction(Transaction transaction) throws CryptographicException {
     int randomPeersCount = Utils.random(1, this.peers.size() + 1);
 
     while (randomPeersCount-- > 0) {
