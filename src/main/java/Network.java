@@ -4,7 +4,7 @@ public class Network {
   Blockchain ledger;
   ArrayList<User> users;
 
-  Network() {
+  Network() throws CryptographicException {
     this.ledger = new Blockchain();
     this.users = new ArrayList<>();
   }
