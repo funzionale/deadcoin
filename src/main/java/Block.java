@@ -15,8 +15,4 @@ public class Block {
     this.nonce = nonce;
     this.createdAt = Utils.now();
   }
-
-  boolean contains(Transaction transaction) {
-    return this.transactions.contains(transaction);
-  }
 }
