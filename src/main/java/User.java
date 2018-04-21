@@ -1,5 +1,7 @@
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
@@ -30,8 +32,9 @@ public class User {
     }
   }
 
-  void createTransaction(User receiver, int amount) {
-    Transaction newTransaction = new Transaction(this.publicKey, receiver.publicKey, amount);
+  void createTransaction(User receiver, int amount)
+          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    Transaction newTransaction = new Transaction(this.privateKey, this.publicKey, receiver.publicKey, amount);
 
     this.transactionsBuffer.add(newTransaction);
     this.broadcastTransaction(newTransaction);
