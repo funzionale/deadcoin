@@ -30,15 +30,14 @@ public class User {
     }
   }
 
-  void createTransaction() {
-    Transaction newTransaction = new Transaction();
+  void createTransaction(User receiver, int amount) {
+    Transaction newTransaction = new Transaction(this.publicKey, receiver.publicKey, amount);
 
     this.transactionsBuffer.add(newTransaction);
     this.broadcastTransaction(newTransaction);
 
     if (this.isReadyToMine()) {
-      List<Transaction> groupedTransactions =
-          this.transactionsBuffer.subList(0, Block.CAPACITY);
+      List<Transaction> groupedTransactions = this.transactionsBuffer.subList(0, Block.CAPACITY);
 
       // @TODO: Mine block
       // @TODO: Broadcast block
@@ -59,8 +58,7 @@ public class User {
     this.broadcastTransaction(transaction);
 
     if (this.isReadyToMine()) {
-      List<Transaction> groupedTransactions =
-              this.transactionsBuffer.subList(0, Block.CAPACITY);
+      List<Transaction> groupedTransactions = this.transactionsBuffer.subList(0, Block.CAPACITY);
 
       // @TODO: Mine block
       // @TODO: Broadcast block

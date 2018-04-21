@@ -31,7 +31,10 @@ public class Network {
   void generateRandomTransactions(int transactionsCount) {
     while (transactionsCount-- > 0) {
       User randomSender = this.getRandomUser();
-      randomSender.createTransaction();
+      User randomReceiver = this.getRandomUser();
+      int randomAmount = Utils.random(1, 100);
+
+      randomSender.createTransaction(randomReceiver, randomAmount);
     }
   }
 

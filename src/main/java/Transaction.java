@@ -1,15 +1,18 @@
 import java.security.PublicKey;
-import java.util.UUID;
 
 public class Transaction {
-  String id;
-  PublicKey senderPublicKey;
-  PublicKey receiverPublicKey;
-  int amount;
-  long createdAt;
+  final String id;
+  final PublicKey senderPublicKey;
+  final PublicKey receiverPublicKey;
+  final int amount;
+  final long createdAt;
 
-  Transaction() {
-    this.id = UUID.randomUUID().toString();
+  Transaction(PublicKey senderPublicKey, PublicKey receiverPublicKey, int amount) {
+    this.id = Utils.uuid();
+    this.senderPublicKey = senderPublicKey;
+    this.receiverPublicKey = receiverPublicKey;
+    this.amount = amount;
+    this.createdAt = Utils.now();
   }
 
   @Override
