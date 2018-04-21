@@ -23,19 +23,27 @@ public class Transaction {
     this.receiverPublicKey = receiverPublicKey;
     this.amount = amount;
     this.createdAt = Utils.now();
-    this.signature = createSignature(senderPrivateKey, receiverPublicKey, amount);
+    this.signature = this.createSignature(senderPrivateKey, receiverPublicKey, amount);
   }
 
-  static byte[] createSignature(
+  byte[] createSignature(
     DSAPrivateKey senderPrivateKey,
     DSAPublicKey receiverPublicKey,
     int amount
   ) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String receiverPublicKeyStringified = receiverPublicKey.toString();
-    String amountStrigified = String.valueOf(amount);
+    String amountStringified = String.valueOf(amount);
 
-    String data = String.join("\n", receiverPublicKeyStringified, amountStrigified);
-    return DSA.sign(senderPrivateKey, data.getBytes());
+    byte[] data = String.join("\n", receiverPublicKeyStringified, amountStringified).getBytes();
+    return DSA.sign(senderPrivateKey, data);
+  }
+
+  boolean hasValidSignature() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    String receiverPublicKeyStringified = this.receiverPublicKey.toString();
+    String amountStringified = String.valueOf(this.amount);
+
+    byte[] data = String.join("\n", receiverPublicKeyStringified, amountStringified).getBytes();
+    return DSA.verify(this.senderPublicKey, data, this.signature);
   }
 
   @Override

@@ -49,9 +49,11 @@ public class User {
     }
   }
 
-  void handleTransaction(Transaction transaction) {
-    // @TODO [QUESTION]: Verify transaction
-    // [Answer]: No!
+  void handleTransaction(Transaction transaction)
+          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    if (!transaction.hasValidSignature()) {
+      return;
+    }
 
     if (this.transactionsBuffer.contains(transaction)) {
       return;
@@ -70,7 +72,8 @@ public class User {
     }
   }
 
-  void broadcastTransaction(Transaction transaction) {
+  void broadcastTransaction(Transaction transaction)
+          throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     int randomPeersCount = Utils.random(1, this.peers.size() + 1);
 
     while (randomPeersCount-- > 0) {
