@@ -33,8 +33,8 @@ public class User {
   void createTransaction() {
     Transaction newTransaction = new Transaction();
 
-    this.broadcastTransaction(newTransaction);
     this.transactionsBuffer.add(newTransaction);
+    this.broadcastTransaction(newTransaction);
 
     if (this.isReadyToMine()) {
       List<Transaction> groupedTransactions =
@@ -55,8 +55,8 @@ public class User {
       return;
     }
 
-    this.broadcastTransaction(transaction);
     this.transactionsBuffer.add(transaction);
+    this.broadcastTransaction(transaction);
 
     if (this.isReadyToMine()) {
       List<Transaction> groupedTransactions =
