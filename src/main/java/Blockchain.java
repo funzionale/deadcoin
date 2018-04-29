@@ -1,8 +1,9 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Blockchain {
-  ArrayList<Block> blocks;
+  final ArrayList<Block> blocks;
 
   Blockchain() throws CryptographicException {
     ArrayList<Transaction> transactions = new ArrayList<>();
@@ -15,12 +16,26 @@ public class Blockchain {
     this.blocks = new ArrayList<>(Arrays.asList(genesisBlock));
   }
 
+  Blockchain(ArrayList<Block> blocks) {
+    this.blocks = blocks;
+  }
+
   void append(Block block) {
     if (this.exists(block)) {
       return;
     }
 
     this.blocks.add(block);
+  }
+
+  void append(ArrayList<Block> blocks) {
+    for (Block block : blocks) {
+      this.append(block);
+    }
+  }
+
+  Block get(int index) {
+    return this.blocks.get(index);
   }
 
   boolean exists(Block block) {
@@ -31,11 +46,32 @@ public class Blockchain {
     return this.blocks.parallelStream().anyMatch(block -> block.hash.equals(hash));
   }
 
+  int size() {
+    return this.blocks.size();
+  }
+
   Block last() {
     if (this.blocks.isEmpty()) {
       return null;
     }
 
     return this.blocks.get(this.blocks.size() - 1);
+  }
+
+  ArrayList<Block> remove(int startIndex, int endIndex) {
+    ArrayList<Block> blocks = new ArrayList<>();
+
+    for (int i = startIndex; i < endIndex; i++) {
+      blocks.add(this.blocks.get(i));
+    }
+
+    this.blocks.removeAll(blocks);
+    return blocks;
+  }
+
+  @Override
+  protected Blockchain clone() {
+    Block[] blocks = this.blocks.toArray(new Block[this.blocks.size()]);
+    return new Blockchain(new ArrayList<>(Arrays.asList(blocks)));
   }
 }

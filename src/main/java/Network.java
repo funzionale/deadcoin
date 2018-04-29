@@ -1,3 +1,5 @@
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.util.ArrayList;
 
 public class Network {
@@ -9,7 +11,11 @@ public class Network {
     this.users = new ArrayList<>();
   }
 
-  void populate(int usersCount) throws CryptographicException {
+  void populate(int usersCount) throws CryptographicException, InvalidArgumentException {
+    if (usersCount < 10) {
+      throw new InvalidArgumentException(new String[]{"Users must be greater than 10"});
+    }
+
     while (usersCount-- > 0) {
       this.users.add(new User(this.ledger));
     }

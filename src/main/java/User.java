@@ -10,6 +10,7 @@ public class User {
   final ArrayList<User> peers;
   final ArrayList<Transaction> transactionsBuffer;
   final Blockchain blockchain;
+  final BlockchainCache blockchainCache;
   // @TODO [QUESTION]: isMiner
   // @TODO [QUESTION]: isHonest
 
@@ -20,7 +21,8 @@ public class User {
     this.privateKey = (DSAPrivateKey) keyPair.getPrivate();
     this.peers = new ArrayList<>();
     this.transactionsBuffer = new ArrayList<>();
-    this.blockchain = ledger; // @TODO: Clone the ledger
+    this.blockchain = ledger.clone();
+    this.blockchainCache = new BlockchainCache();
   }
 
   void addPeer(User peer) {
@@ -30,7 +32,8 @@ public class User {
   }
 
   void createTransaction(User receiver, int amount) throws CryptographicException {
-    Transaction newTransaction = new Transaction(this.privateKey, this.publicKey, receiver.publicKey, amount);
+    Transaction newTransaction =
+        new Transaction(this.privateKey, this.publicKey, receiver.publicKey, amount);
 
     this.transactionsBuffer.add(newTransaction);
     this.broadcastTransaction(newTransaction);
@@ -61,6 +64,7 @@ public class User {
       List<Transaction> groupedTransactions = this.transactionsBuffer.subList(0, Block.CAPACITY);
 
       Block block = this.createBlock(groupedTransactions);
+      this.blockchain.append(block);
       this.broadcastBlock(block);
 
       this.transactionsBuffer.removeAll(groupedTransactions);
@@ -81,7 +85,33 @@ public class User {
   }
 
   void handleBlock(Block block) {
-    // @TODO
+    if (this.blockchain.exists(block)) {
+      return;
+    }
+
+    if (block.previousBlockHash.equals(this.blockchain.last().hash)) {
+      this.blockchain.append(block);
+    } else if (block.previousBlockHash.equals(this.blockchain.last().previousBlockHash)) {
+      this.blockchainCache.append(block);
+    } else {
+      int cacheIndex = this.blockchainCache.append(block);
+      int cacheEntrySize = this.blockchainCache.getCacheEntryGetSize(cacheIndex);
+      String previousHash = this.blockchainCache.getCacheEntryPreviousHash(cacheIndex);
+
+      for (int i = blockchain.size() - 1; i >= 0; i--) {
+        if (blockchain.get(i).previousBlockHash.equals(previousHash)) {
+          int steps = blockchain.size() - i;
+
+          if (steps < cacheEntrySize) {
+            ArrayList<Block> blocks = this.blockchain.remove(i, this.blockchain.size());
+            ArrayList<Block> cachedBlocks = this.blockchainCache.swap(cacheIndex, blocks);
+            this.blockchain.append(cachedBlocks);
+          } else if (steps - cacheEntrySize >= 3) {
+            blockchainCache.discard(cacheIndex);
+          }
+        }
+      }
+    }
   }
 
   void broadcastBlock(Block block) {
