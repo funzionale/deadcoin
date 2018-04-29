@@ -38,8 +38,8 @@ public class User {
     if (this.isReadyToMine()) {
       List<Transaction> groupedTransactions = this.transactionsBuffer.subList(0, Block.CAPACITY);
 
-      // @TODO: Mine block
-      // @TODO: Broadcast block
+      Block block = this.createBlock(groupedTransactions);
+      this.broadcastBlock(block);
 
       this.transactionsBuffer.removeAll(groupedTransactions);
     }
@@ -60,8 +60,8 @@ public class User {
     if (this.isReadyToMine()) {
       List<Transaction> groupedTransactions = this.transactionsBuffer.subList(0, Block.CAPACITY);
 
-      // @TODO: Mine block
-      // @TODO: Broadcast block
+      Block block = this.createBlock(groupedTransactions);
+      this.broadcastBlock(block);
 
       this.transactionsBuffer.removeAll(groupedTransactions);
     }
@@ -76,16 +76,21 @@ public class User {
     }
   }
 
-  void createBlock() {
+  Block createBlock(List<Transaction> transactions) throws CryptographicException {
+    return new Block(transactions, this.blockchain);
+  }
+
+  void handleBlock(Block block) {
     // @TODO
   }
 
-  void handleBlock() {
-    // @TODO
-  }
+  void broadcastBlock(Block block) {
+    int randomPeersCount = Utils.random(1, this.peers.size() + 1);
 
-  void broadcastBlock() {
-    // @TODO
+    while (randomPeersCount-- > 0) {
+      User randomPeer = this.getRandomPeer();
+      randomPeer.handleBlock(block);
+    }
   }
 
   boolean isReadyToMine() {

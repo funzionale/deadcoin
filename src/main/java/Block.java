@@ -1,15 +1,15 @@
-import java.util.ArrayList;
+import java.util.List;
 
 public class Block {
   static final int CAPACITY = 10;
-  final ArrayList<Transaction> transactions;
+  final List<Transaction> transactions;
   final String previousBlockHash;
   final String hash;
   final int nonce;
   final long createdAt;
 
   public Block(
-    ArrayList<Transaction> transactions,
+    List<Transaction> transactions,
     String previousBlockHash,
     int nonce,
     long createdAt
@@ -18,17 +18,17 @@ public class Block {
     this.previousBlockHash = previousBlockHash;
     this.nonce = nonce;
     this.createdAt = createdAt;
-    this.hash = createHash(previousBlockHash, nonce, createdAt);
+    this.hash = createHash(previousBlockHash, nonce, createdAt, transactions);
   }
 
-  Block(ArrayList<Transaction> transactions, Blockchain blockchain) throws CryptographicException {
+  Block(List<Transaction> transactions, Blockchain blockchain) throws CryptographicException {
     String previousBlockHash = blockchain.last().hash;
     int nonce = 0;
     long createdAt = Utils.now();
     String hash = null;
 
     for (; nonce < Integer.MAX_VALUE; nonce++) {
-      hash = createHash(previousBlockHash, nonce, createdAt);
+      hash = createHash(previousBlockHash, nonce, createdAt, transactions);
 
       if (isValidHash(hash) && !blockchain.exists(hash)) {
         break;
@@ -42,8 +42,26 @@ public class Block {
     this.hash = hash;
   }
 
-  static String createHash(String previousBlockHash, int nonce, long createdAt) throws CryptographicException {
-    String data = String.join("", previousBlockHash, String.valueOf(nonce), String.valueOf(createdAt));
+  static String createHash(
+    String previousBlockHash,
+    int nonce,
+    long createdAt,
+    List<Transaction> transactions
+  ) throws CryptographicException {
+    String transactionsIds = transactions
+      .stream()
+      .map(transaction -> transaction.id)
+      .reduce(String::concat)
+      .orElse("");
+
+    String data = String.join(
+      "",
+      previousBlockHash,
+      String.valueOf(nonce),
+      String.valueOf(createdAt),
+      transactionsIds
+    );
+
     return SHA256.hash(data);
   }
 
